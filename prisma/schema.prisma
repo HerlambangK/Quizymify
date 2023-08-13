@@ -63,7 +63,7 @@ model Game {
   timeStarted DateTime
   topic       String
   timeEnded   DateTime?
-  timeType    GameType
+  gameType    GameType
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
