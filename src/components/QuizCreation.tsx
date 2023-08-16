@@ -21,6 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOpen, CopyCheck } from 'lucide-react'
 import { Separator } from './ui/separator'
+import { useMutation } from "@tanstack/react-query"
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+// import { error } from 'console'
 
 
 type Props = {}
@@ -28,6 +32,18 @@ type Props = {}
 type Input = z.infer<typeof quizCreationSchema>
 
 const QuizCreation = (props: Props) => {
+    const router = useRouter();
+    const { mutate: getQuestions, isLoading } = useMutation({
+        mutationFn: async ({ amount, topic, type }: Input) => {
+            const response = await axios.post("/api/game", {
+                amount,
+                topic,
+                type,
+            })
+            console.log("response.data ", response.data)
+            return response.data;
+        }
+    })
     const form = useForm<Input>({
         resolver: zodResolver(quizCreationSchema),
         defaultValues: {
@@ -38,7 +54,23 @@ const QuizCreation = (props: Props) => {
     })
 
     function onSubmit(input: Input) {
-        alert(JSON.stringify(input, null, 2))
+        // alert(JSON.stringify(input, null, 2))
+        getQuestions({
+            amount: input.amount,
+            topic: input.topic,
+            type: input.type,
+        }, {
+            onSuccess: ({ gameId }) => {
+                if (form.getValues('type') == 'open_ended') {
+                    router.push(`/play/open_ended/${gameId}`)
+                } else {
+                    router.push(`/play/mcq/${gameId}`)
+                }
+                console.log("gameId", gameId)
+            }
+        })
+        console.log("input ", input.amount);
+
     }
 
     form.watch()
@@ -86,8 +118,8 @@ const QuizCreation = (props: Props) => {
                                             />
                                         </FormControl>
                                         <FormDescription>
-                                            Please provice a topic
-                                        </FormDescription>
+                                            You can choose how many questions you would like to be
+                                            quizzed on here                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -118,7 +150,7 @@ const QuizCreation = (props: Props) => {
                                 </Button>
 
                             </div>
-                            <Button type="submit">Submit</Button>
+                            <Button disabled={isLoading} type="submit">Submit</Button>
                         </form>
                     </Form>
                 </CardContent>
