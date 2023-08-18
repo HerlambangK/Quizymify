@@ -1,3 +1,4 @@
+import OpenEnded from '@/components/OpenEnded'
 import { prisma } from '@/lib/db'
 import { getAuthSession } from '@/lib/nextauth'
 import { redirect } from 'next/navigation'
@@ -23,15 +24,15 @@ const OpenEndedPage = async ({ params: { gameId } }: Props) => {
                 select: {
                     id: true,
                     question: true,
-                    options: true
+                    answer: true
                 }
             }
         }
     });
-    if (!game || game.gameType !== 'open-ended') {
+    if (!game || game.gameType !== 'open_ended') {
         return redirect('/quiz')
     }
-    return <MCQ game={game} />
+    return <OpenEnded game={game} />
     // <div>{gameId}</div>
     // <pre>{JSON.stringify(game, null, 2)}</pre>
 
