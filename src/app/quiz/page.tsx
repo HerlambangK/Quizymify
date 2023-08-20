@@ -3,20 +3,24 @@ import { getAuthSession } from '@/lib/nextauth'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-type Props = {}
+type Props = {
+  searchParams: {
+    topic?: string
+  }
+}
 
 export const metadata = {
   title: "Quiz | Quizmify"
 }
 
-const QuizPage = async (props: Props) => {
+const QuizPage = async ({ searchParams }: Props) => {
 
   const session = await getAuthSession()
   if (!session?.user) {
     return redirect('/');
   }
   return (
-    <QuizCreation />
+    <QuizCreation topicParam={searchParams.topic ?? ''} />
   )
 }
 

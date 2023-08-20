@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import React from 'react'
 import HotTopicCard from './HotTopicCard';
 import RecentActivityCard from './RecentActivityCard';
+import HistoryComponent from '@/components/HistoryComponent';
 
 type Props = {}
 
@@ -29,6 +30,7 @@ const Dashboard = async (props: Props) => {
             <div className="grid gap-4 mt-4 md:grid-cols-2 lg:grid-cols-7">
                 <HotTopicCard />
                 <RecentActivityCard />
+                {/* <HistoryComponent /> */}
             </div>
         </main>
     )

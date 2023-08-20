@@ -69,7 +69,7 @@ model Game {
   @@index([userId])
 }
 
-model topic_count {
+model topicCount {
   id    String @id @default(cuid())
   topic String @unique
   count Int
