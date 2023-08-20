@@ -110,7 +110,8 @@ const MCQ = ({ game }: Props) => {
         if (!currentQuestion) return [];
         if (!currentQuestion.options) return [];
         return JSON.parse(currentQuestion.options as string) as string[];
-    }, [currentQuestion])
+    }, [currentQuestion]);
+
 
     // console.log("options", options)
     // console.log("currentQuestion", currentQuestion)
@@ -135,7 +136,7 @@ const MCQ = ({ game }: Props) => {
                 <div className="flex flex-col">
                     <p>
                         <span className='text-slate-400 mr-2'>Topic</span>
-                        <span className='px-2 py-1 text-white rounded-lg bg-slate-800'>{game.topic}</   span>
+                        <span className='px-2 py-1 text-white rounded-lg bg-slate-800'>{game.topic}</span>
                     </p>
                     <div className="flex self-start mt-3 text-slate-400">
                         <Timer className={"mr-2"} />
@@ -165,7 +166,7 @@ const MCQ = ({ game }: Props) => {
                 {options.map((option, index) => {
                     return (
                         <Button
-                            key={option}
+                            key={index}
                             variant={selectedChoice === index ? 'default' : 'secondary'}
                             className="justify-start w-full py-8 mb-4"
                             onClick={() => {
