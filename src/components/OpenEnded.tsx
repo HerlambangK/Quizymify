@@ -13,6 +13,7 @@ import { checkAnswerSchema } from '@/schemas/form/quiz'
 import { useToast } from './ui/use-toast'
 import Link from 'next/link'
 import { cn, formatTimeDelta } from '@/lib/utils'
+import BlankAnswerInput from './BlankAnswerInput'
 
 type Props = {
     game: Game & {
@@ -24,6 +25,7 @@ type Props = {
 const OpenEnded = ({ game }: Props) => {
     // return <pre>{JSON.stringify(game, null, 4)}</pre>
     const [questionIndex, setQuestionIndex] = React.useState(0);
+    const [blankAnswer, setBlankAnswer] = React.useState<string>("");
     const [hasEnded, setHasEnded] = React.useState<boolean>(false);
     const { toast } = useToast();
     const [now, setNow] = React.useState<Date>(new Date())
@@ -43,23 +45,27 @@ const OpenEnded = ({ game }: Props) => {
         }
     }, [hasEnded]);
 
-    console.log(currentQuestion.answer)
+    // console.log(currentQuestion.answer)
 
     const { mutate: checkAnswer, isLoading: isChecking } = useMutation({
         mutationFn: async () => {
+            let filledAnswer = blankAnswer;
+            document.querySelectorAll("#user-blank-input").forEach((input) => {
+                filledAnswer = filledAnswer.replace("_____", input.value);
+                input.value = "";
+            });
             const payload: z.infer<typeof checkAnswerSchema> = {
                 questionId: currentQuestion.id,
-                userAnswer: ''
-
-            }
-            const response = await axios.post("/api/checkAnswer", payload
-            );
+                userAnswer: filledAnswer,
+            };
+            const response = await axios.post("/api/checkAnswer", payload);
             return response.data;
-        }
+        },
     });
 
     const handleNext = React.useCallback(() => {
         if (isChecking) return;
+        console.log("blankAnswer", blankAnswer)
         checkAnswer(undefined, {
             onSuccess: ({ percentageSimilar }) => {
                 toast({
@@ -73,7 +79,7 @@ const OpenEnded = ({ game }: Props) => {
                 setQuestionIndex((prev) => prev + 1)
             }
         });
-    }, [checkAnswer, toast, isChecking, questionIndex, game.questions.length])
+    }, [checkAnswer, toast, isChecking, questionIndex, game.questions.length, blankAnswer])
 
     React.useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -85,7 +91,22 @@ const OpenEnded = ({ game }: Props) => {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [handleNext])
+    }, [handleNext]);
+
+
+    if (hasEnded) {
+        return (
+            <div className="absolute flex flex-col justify-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+                <div className="px-4 mt-2 font-semibold text-white bg-green-500 rounded-md whitespace-nowrap">
+                    You Completed in {"3m 4s"}
+                </div>
+                <Link href={`/statistics/${game.id}`} className={cn(buttonVariants(), 'mt-2')}>
+                    View Statistics
+                    <BarChart className='w-4 h-4 ml-2' />
+                </Link>
+            </div >
+        )
+    }
 
     return (
         <div className="absolute -translate-x-1/2 -translate-y-1/2 md:w-[80vw] max-w-4xl w-[90vw] top-1/2 left-1/2 mt-3">
@@ -121,7 +142,7 @@ const OpenEnded = ({ game }: Props) => {
             </Card>
 
             <div className="flex flex-col items-center justify-center w-full mt-4">
-
+                <BlankAnswerInput answer={currentQuestion.answer} setBlankAnswer={setBlankAnswer} />
                 <Button
                     className='mt-2'
                     disabled={isChecking}
